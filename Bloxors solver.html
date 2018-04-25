@@ -1,0 +1,294 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!-- saved from url=(0030)http://www.mlsite.net/bloxors/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		
+		<meta http-equiv="Content-Script-Type" content="text/javascript">
+
+		<style type="text/css">
+			/* Basic Style */
+			html {
+				background:			black;
+			}
+			body {
+				color:				white;
+			}
+			a:link {
+				color:				aqua;
+			}
+			a:visited {
+				color:				yellow;
+			}
+
+			/* Copy style */
+			div.copy {
+				margin:				2em 15% 0px;
+				border:				0px;
+				padding:			0px;
+			}	
+			span.pop {
+				color:				lime;
+			}
+			div.menu {
+				font-size:			small;
+				text-align:			right;
+				white-space:			nowrap;
+			}
+			div.menu a {
+				margin:				0px 0.5em;
+			}
+			div.menu a:link {
+				color:				white;
+			}
+			div.menu a:visited {
+				color:				white;
+			}
+
+			/* Navigation style */
+			div.nav {
+				margin:				2em 15% 0px;
+				border:				0px;
+				padding:			0px;
+				text-align:			center;
+			}
+			div.nav span {
+				margin:				0px 1em;
+				border:				0px;
+				padding:			0px;
+			}
+
+			/* Shared interface style */
+			div#editboard {
+				display:			none;
+			}
+			table.interface {
+				margin:				2em auto 0px;
+				border:				0px;
+				padding:			0px;
+			}
+			button.normal {
+				border:				solid 1px gray;
+			}
+			button.occupied {
+				border:				solid 1px lime;
+			}
+			button.avoid {
+				border:				solid 1px red;
+			}
+			button.goal {
+				border:				solid 1px yellow;
+			}
+			button.occupiedavoid {
+				border:				solid 1px fuchsia;
+			}
+			button.avoidgoal {
+				border:				solid 1px orange;
+			}
+			button.occupiedgoal {
+				border:				solid 1px white;
+			}
+			button.occupiedavoidgoal {
+				border:				solid 1px purple;
+			}
+
+			/* Palette interface style */
+			td#palette {
+				vertical-align:			top;
+				text-align:			left;
+				white-space:			nowrap;
+			}
+			td#palette table {
+				margin:				0px 0px 2em;
+				border:				0px;
+				padding:			0px;
+			}
+			td#palette button {
+				background:			black;
+				color:				white;
+				width:				2em;
+				heigth:				2em;
+				text-align:			center;
+			}
+			p.note {
+				margin:				0px;
+				border:				0px;
+				padding:			0px;
+				font-size:			small;
+			}
+
+			/* Playfield interface style */
+			td#field button {
+				background:			black;
+				color:				white;
+				width:				2em;
+				heigth:				2em;
+				text-align:			center;
+			}
+
+			/* Game board style */
+			div#gameboard {
+				display:			block;
+			}
+			div.gameboard {
+				background-image:		url("335.jpg");
+				overflow:			hidden;
+				position:			relative;
+				height:				300px;
+				width:				550px;
+				margin:				1em auto 0px;
+			}
+			div.gameboard img {
+				position: 			absolute;
+			}
+			div.gameboard div {
+				position: 			absolute;
+			}
+
+			/* Command style */
+			div.command {
+				margin:				2em 0px 0px;
+				border:				0px;
+				padding:			0px;
+				text-align:			center;
+			}
+		</style>
+
+		<title>Bloxors solver</title>
+	</head>
+	<body>
+		<div class="copy">
+			<div class="menu">
+				<a href="http://www.mlsite.net/blog">Blog</a>
+				<a id="copyswitch" href="http://www.mlsite.net/bloxors/#" onclick="this.blur(); app.HideCopy(); return false;">Hide Introduction</a>
+			</div>
+			<div id="copycontent" style="display: block;">
+				<p><a href="http://www.addictinggames.com/bloxors.html">Bloxorz</a> (or, as I keep trying to spell
+				it, 'Bloxors') is a nice little puzzle game.  It seemed to lend itself well to a mechanical
+				solution, and a number of people reported being stuck, so I tinkered together this solver for
+				Bloxorz puzzles.</p>
+
+				<p>Functionality is limited in several important respects:</p>
+					<ul>
+						<li><del>You must enter the puzzle into the solver before a solution can
+						be computed.</del> <span class="pop">New!</span> All 33 levels are now
+						pre-defined in the solver.  Use the 'Quickload' dropdown to load one of
+						these levels.</li>
+						<li>The solver doesn't understand the effects of landing on switches.
+						<del>You must manually determine the effects of each switch, which
+						switches to avoid, which to hit, and in what sequence to visit them.</del>
+						<span class="pop">New!</span> Levels incorporating switches have been
+						broken into sublevels (Level 02A, Level 02B, etc.) in the Quickload menu.
+						Each sublevel has the correct sub-goal (e.g. a switch or splitter)
+						pre-selected.  (The layout of each sublevel reflects the effects of all
+						previously triggered switches.)</li>
+						<li>The solver only handles rectangular blocks.  Sublevels following
+						sublevels which end with splitters (e.g. Level 15B) begin once the
+						rectangular block has been reassembled; such reassembly is left as an
+						exercise for the reader.</li>
+					</ul>
+
+				<p>If you can live with those caveats, select a level from the Quickload menu (or use the palette in
+				the <a href="http://www.mlsite.net/bloxors/#" onclick="return app.SetMode(&#39;edit&#39;);">edit view</a> to lay out a level) and let the
+				solver show you the path.  Happy bloxoring, and feel free to <a href="http://www.mlsite.net/mail.xhtml">contact</a> me with
+				any suggestions, bugs, or (always appreciated) compliments.</p>
+
+				<p>(Tested on IE 6.0.2800.1106, Mozilla 1.7.2, and FF 2.0.0.17)</p>
+			</div>
+		</div>
+
+		<div class="nav">
+			<span>
+				<input id="mode_edit" type="radio" name="mode" value="edit" onclick="app.SetMode(&#39;edit&#39;);">
+				<label for="mode_edit">Edit View</label>
+			</span>
+			<span>
+				<input id="mode_game" type="radio" name="mode" value="game" onclick="app.SetMode(&#39;game&#39;);">
+				<label for="mode_game">Game View</label>
+			</span>
+			<span>
+				<label for="selLevel">Quickload:</label>
+				<select id="selLevel" onchange="app.Load();">
+					<option>Empty</option>
+				</select>
+			</span>
+		</div>
+
+		<div id="editboard" style="display: block;">
+			<table class="interface"><tbody><tr>
+				<td id="palette">
+					<table style="display: block;">
+						<tbody><tr>
+							<td><button class="normal" onclick="app.SetAction(&#39;type&#39;, &#39;O&#39;);">O</button></td>
+							<td>Create a Soft Plate</td>
+						</tr>
+						<tr>
+							<td><button class="normal" onclick="app.SetAction(&#39;type&#39;, &#39;X&#39;);">X</button></td>
+							<td>Create a Hard Plate</td>
+						</tr>
+						<tr>
+							<td><button class="normal" onclick="app.SetAction(&#39;type&#39;, &#39;S&#39;);">S</button></td>
+							<td>Create a Splitter</td>
+						</tr>
+						<tr>
+							<td><button class="normal" onclick="app.SetAction(&#39;type&#39;, &#39;N&#39;);">N</button></td>
+							<td>Create a Normal Cell</td>
+						</tr>
+						<tr>
+							<td><button class="normal" onclick="app.SetAction(&#39;type&#39;, &#39;W&#39;);">W</button></td>
+							<td>Create a Weak Cell</td>
+						</tr>
+						<tr>
+							<td><button class="normal" onclick="app.SetAction(&#39;type&#39;, &#39;#&#39;);">#</button></td>
+							<td>Create Destination Cell</td>
+						</tr>
+						<tr>
+							<td><button class="normal" onclick="app.SetAction(&#39;type&#39;, &#39;.&#39;);">.</button></td>
+							<td>Create an Empty Cell</td>
+						</tr>
+					</tbody></table>
+					<table style="display: block;">
+						<tbody><tr>
+							<td><button class="occupied" onclick="app.SetAction(&#39;bOccupied&#39;);">.</button></td>
+							<td>Mark/clear occupied flag</td>
+						</tr>
+						<tr>
+							<td><button class="avoid" onclick="app.SetAction(&#39;bAvoid&#39;);">.</button></td>
+							<td>Mark/clear forbidden flag<p class="note">(Plates and splitters only)</p></td>
+						</tr>
+						<tr>
+							<td><button class="goal" onclick="app.SetAction(&#39;bGoal&#39;);">.</button></td>
+							<td>Mark/clear goal flag</td>
+						</tr>
+					</tbody></table>
+				</td>
+				<td id="field"><table><tbody><tr><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td></tr><tr><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td></tr><tr><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td></tr><tr><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td></tr><tr><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td></tr><tr><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td></tr><tr><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td></tr><tr><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td></tr><tr><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td></tr><tr><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td></tr><tr><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td></tr><tr><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td></tr><tr><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td></tr><tr><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td></tr><tr><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td></tr><tr><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td></tr><tr><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td><td><button class="normal">.</button></td></tr></tbody></table></td>
+			</tr></tbody></table>
+		</div>
+
+		<div id="gameboard" class="gameboard" style="display: none;"></div>
+
+		<div class="command">
+			<button id="btnSolve" onclick="app.Solve();" style="display: inline;">Solve the puzzle!</button>
+			<button id="btnClear" onclick="app.Load();" style="display: inline;">Reset the board</button>
+			<button id="btnStart" onclick="app.StartAnimation();" style="display: none;">Start animation</button>
+			<button id="btnReset" onclick="app.ResetAnimation();" style="display: none;">Reset animation</button>
+			<button id="btnStop" onclick="app.StopAnimation();" style="display: none;">Stop animation</button>
+		</div>
+
+		<div class="copy">
+			<p>If you'd like to read about some of the theory behind this solver, you might be interested in these
+			posts from my blog:</p>
+
+			<ul>
+				<li><a href="http://www.mlsite.net/blog/?p=13">Breadth-First Search</a></li>
+				<li><a href="http://www.mlsite.net/blog/?p=14">JSON Data Formats</a></li>
+				<li><a href="http://www.mlsite.net/blog/?p=27">Extracting Bitmaps from Flash</a></li>
+				<li><a href="http://www.mlsite.net/blog/?p=29">Isometric Graphics</a></li>
+			</ul>
+		</div>
+
+		<script type="text/javascript" charset="utf-8" src="./Bloxors solver_files/browser_detect.js"></script>
+		<script type="text/javascript" charset="utf-8" src="./Bloxors solver_files/c0.js"></script>
+		<script type="text/javascript" charset="utf-8" src="./Bloxors solver_files/maps.js"></script>
+	
+
+</body></html>
