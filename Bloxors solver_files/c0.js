@@ -69,7 +69,7 @@ var Solver = new function() {
 	};
 
 	// Designed to be bound to a <BUTTON> tag
-	m.HandleFieldClick = function () {
+	m.HandleFieldClick = function () {  //http://jsfiddle.net/fwZTc/1/
 		app.TakeAction(this.cell.x, this.cell.y);
 	};
 
