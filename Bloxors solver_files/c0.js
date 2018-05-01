@@ -11,13 +11,22 @@ var Solver = new function() {
 		var images, makeImage, imageCache, imageName;
 
 		// Game art directory
-		images = {	'N':{fn:'266.png',w:49,h:33}, 'O':{fn:'292.png',w:49,h:33}, 'X':{fn:'294.png',w:49,h:33},
-				'#':{fn:'297a.png',w:53,h:31}, 'W':{fn:'317.png',w:49,h:33}, 'S':{fn:'315a.png',w:52,h:34},
-				'goal':{fn:'m1a.png',w:49,h:33}, 'avoid':{fn:'m2a.png',w:49,h:33},
-				'avoidgoal':{fn:'m3a.png',w:49,h:33}, 'occupied':{fn:'m4a.png',w:49,h:33},
-				'occupiedgoal':{fn:'m5a.png',w:49,h:33}, 'occupiedavoid':{fn:'m6a.png',w:49,h:33},
-				'occupiedavoidgoal':{fn:'m7a.png',w:49,h:33}, 'block_v':{fn:'872.png',w:200,h:150},
-				'block_ew':{fn:'976.png',w:200,h:150}, 'block_ns':{fn:'892.png',w:200,h:150}};
+		images = {	'N':{fn:'266.png',w:49,h:33},
+		 			'O':{fn:'292.png',w:49,h:33}, 
+		 			'X':{fn:'294.png',w:49,h:33},
+					'#':{fn:'297a.png',w:53,h:31}, 
+					'W':{fn:'317.png',w:49,h:33}, 
+					'S':{fn:'315a.png',w:52,h:34},
+					'goal':{fn:'m1a.png',w:49,h:33}, 
+					'avoid':{fn:'m2a.png',w:49,h:33},
+					'avoidgoal':{fn:'m3a.png',w:49,h:33}, 
+					'occupied':{fn:'m4a.png',w:49,h:33},
+					'occupiedgoal':{fn:'m5a.png',w:49,h:33}, 
+					'occupiedavoid':{fn:'m6a.png',w:49,h:33},
+					'occupiedavoidgoal':{fn:'m7a.png',w:49,h:33}, 
+					'block_v':{fn:'872.png',w:200,h:150},
+					'block_ew':{fn:'976.png',w:200,h:150}, 
+					'block_ns':{fn:'892.png',w:200,h:150}};
 
 		// Image generation is browser-specific, due to limited IE PNG support
 		if ((browser.isIE55 || browser.isIE6x) && browser.isWin32)
@@ -272,7 +281,7 @@ var Solver = new function() {
 		}
 	};
 
-
+	//ok, x<->y
 	m.Board = function (size) {
 		this.size	= size;
 		this.cells	= new Array(size);
@@ -286,12 +295,13 @@ var Solver = new function() {
 			}
 		}
 	};
+	
 	p = m.Board.prototype;
-
+	//ok
 	p.CalcOrdinal = function (x, y) {
 		return (y + 1)*this.size - x;
 	};
-
+	//ok
 	p.GetCell = function (x, y) {
 		if (this.cells[y] && this.cells[y][x])
 		{
@@ -302,7 +312,7 @@ var Solver = new function() {
 			return new m.Cell(x, y, '.', false, false, false);
 		}
 	};
-
+	//ok but not sure
 	p.SetAttr = function (x, y, name, value) {
 		if (value == undefined)
 		{
@@ -313,7 +323,7 @@ var Solver = new function() {
 			this.GetCell(x, y)[name] = value;
 		}
 	};
-
+	//ok like draw level
 	p.Load = function (data) {
 		if (data.length < this.size*this.size)
 		{
@@ -331,6 +341,7 @@ var Solver = new function() {
 		return true;
 	};
 
+	//dontcare
 	p.Save = function () {
 		var y, x, i = 0, rv = new Array(this.size*this.size);
 		for (y = 0; y < this.size; y++)
@@ -342,7 +353,7 @@ var Solver = new function() {
 		}
 		return rv;
 	};
-
+	//called by drawlevel
 	p.Render2D = function (editId) {
 		var tbl = document.createElement('TABLE');
 		var bdy = tbl.appendChild(document.createElement('TBODY'));
@@ -363,7 +374,7 @@ var Solver = new function() {
 		m.ClearNode(n0);
 		n0.appendChild(tbl);
 	};
-
+	//get later
 	p.RenderIso = function (gameId) {
 		var n1 = document.getElementById(gameId);
 		m.ClearNode(n1);
@@ -568,6 +579,7 @@ function App(size)
 	}
 }
 
+//ok
 App.prototype.SetQuickloads = function (maps) {
 	var sel = document.getElementById('selLevel');
 	Solver.ClearNode(sel);
@@ -590,22 +602,21 @@ App.prototype.SetQuickloads = function (maps) {
 		this.Load();
 	}
 };
-
-
+//y
 App.prototype.MakeShowClickHandler = function () {
 	var o = this;
 
 	// Designed to be bound to an <A> tag
 	return function () { this.blur(); o.ShowCopy(); return false; };
 };
-
+//y
 App.prototype.MakeHideClickHandler = function () {
 	var o = this;
 
 	// Designed to be bound to an <A> tag
 	return function () { this.blur(); o.HideCopy(); return false; };
 };
-
+//y
 App.prototype.HideCopy = function () {
 	var ctl = document.getElementById('copyswitch');
 	var txt = document.getElementById('copycontent');
@@ -615,7 +626,7 @@ App.prototype.HideCopy = function () {
 
 	txt.style.display = 'none';
 };
-
+//y
 App.prototype.ShowCopy = function () {
 	var ctl = document.getElementById('copyswitch');
 	var txt = document.getElementById('copycontent');
@@ -625,7 +636,7 @@ App.prototype.ShowCopy = function () {
 
 	txt.style.display = 'block';
 };
-
+//ok
 App.prototype.SetMode = function (mode) {
 	this.mode = mode;
 	this.RenderBoard();
@@ -633,8 +644,7 @@ App.prototype.SetMode = function (mode) {
 	this.RenderControls();
 	return false;
 };
-
-
+//n
 App.prototype.FmtMaps = function () {
 	var i, y, s, a = [];
 
@@ -653,7 +663,7 @@ App.prototype.FmtMaps = function () {
 
 	return a.join('\n');
 };
-
+//n
 App.prototype.PostMaps = function (s) {
 	// Don't get your hopes up; it's disabled on the server-side, too.
 	return true;
@@ -692,7 +702,7 @@ App.prototype.PostMaps = function (s) {
 	xhr.send(data);
 	return true;
 };
-
+//n
 App.prototype.Save = function () {
 	var obj = this.maps[document.getElementById('selLevel').selectedIndex];
 	if (obj)
@@ -706,7 +716,7 @@ App.prototype.Save = function () {
 		alert('ERROR: Map could not be saved');
 	}
 };
-
+//n
 App.prototype.SaveAs = function () {
 	// New name
 	var name = document.getElementById('saveAsName').value;
@@ -723,12 +733,12 @@ App.prototype.SaveAs = function () {
 	this.Save();
 };
 
-
 App.prototype.SetAction = function (name, value) {
 	this.actionName		= name;
 	this.actionValue	= value;
 };
 
+//using for edit view, change map, get later
 App.prototype.TakeAction = function (x, y) {
 	if ((this.actionName != undefined) && (this.hInterval == undefined))
 	{
@@ -740,7 +750,7 @@ App.prototype.TakeAction = function (x, y) {
 		this.RenderControls();
 	}
 };
-
+//ok
 App.prototype.Load = function () {
 	var obj = this.maps[document.getElementById('selLevel').selectedIndex];
 	if (!obj) { return; }
@@ -840,7 +850,6 @@ App.prototype.StopAnimation = function () {
 		this.RenderControls();
 	}
 };
-
 
 App.prototype.Move = function (oldPos, newPos) {
 	// Clear current occupied position
