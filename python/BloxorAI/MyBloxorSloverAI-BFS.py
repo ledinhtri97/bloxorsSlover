@@ -7,8 +7,9 @@ from PIL import Image, ImageTk
 from functools import partial
 import json
 import threading
-import time
+import sys
 
+OSWIDTH = 2 if sys.platform == 'linux' else 5
 COLOROCCUPIED = 'royal blue'
 COLORGOAL 	  = 'orange'
 COLORAVOID	  = 'tomato'
@@ -16,9 +17,9 @@ COLORDEFAULT  = 'gray83'
 
 class Solver(object):
 	"""docstring for Solver"""
-	def __init__(self):
+	def __init__(self, GameBoardApp=None):
 		super().__init__()
-		
+		self.GameBoardApp = GameBoardApp
 
 	def imageCache(self):
 		pass
@@ -31,8 +32,9 @@ class Solver(object):
 		if (o): return o
 	
 	#not yet
-	def HandleFieldClick(self,x ,y):
-		self.GameBoard.TakeAcion(x, y)
+	def HandleFieldClick(self, x ,y):
+		#print(x, y)
+		self.GameBoardApp.TakeAcion(x, y)
 	
 
 	#Class Object
@@ -139,10 +141,10 @@ class Solver(object):
 			return self.ttype + str(4 if self.bOccupied else 0) + str(2 if self.bAvoid else 0) + str(1 if self.bGoal else 0) 
 	
 		def Render(self, btn):
-			className = ''	
+			className = ''
 			if(self.bOccupied):
 				className += 'occupied'
-			if(self.bAvoid and (self.type == 'O' or (self.ttype == 'X') or (self.ttype == 'S'))):
+			if(self.bAvoid and (self.ttype == 'O' or (self.ttype == 'X') or (self.ttype == 'S'))):
 				className += 'avoid'
 			if(self.bGoal):
 				className += 'goal'
@@ -153,12 +155,9 @@ class Solver(object):
 								else COLORAVOID if (self.bAvoid) \
 								else COLORGOAL if(self.bGoal) \
 								else COLORDEFAULT
-				
 				btn.config(text=self.ttype, command=None, bg=color, width=2)
-				btn.pack(side=LEFT)
 			else:
 				self.getImages()
-		
 		
 		def getImages(self):
 			pass
@@ -188,6 +187,12 @@ class Solver(object):
 			self.GameBoard = GameBoard
 			self.data = json.load(open('maps.json'))
 			self.maps = self.data['maps']
+
+			self.Cttype=None
+			self.CbOccupied=None
+			self.CbAvoid=None
+			self.CbGoal=None
+			self.ListenerChange=False
 				
 			self.size = len(self.maps[0]['data'])
 			
@@ -195,14 +200,24 @@ class Solver(object):
 
 			self.arrayButton = [[0 for x in range(self.size)] for y in range(self.size)] 
 
-			# for y in range(self.size):
-			# 	frBtn= Frame(self.GameBoard)
-			# 	for x in range(self.size):
-			# 		self.cells[y][x] = self.Solver.Cell(x, y, '.', False, False, False)
-			# 		self.arrayButton[y][x] = Button(frBtn)
-			# 		self.GetCell(x, y).Render(self.arrayButton[y][x])
-			# 	frBtn.pack()
-
+			#def initArrayButton():
+			#	if(self.arrayButton[self.size-1][self.size-1] == 0):			
+			#print("bg")
+			for y in range(self.size):
+				frBtn= Frame(self.GameBoard)
+				for x in range(self.size):
+					self.cells[y][x] = self.Solver.Cell(x, y, '.', False, False, False)
+					
+					setAction=partial(self.Solver.HandleFieldClick, x, y)
+					
+					self.arrayButton[y][x] = Button(frBtn, text=".", command=setAction, bg=COLORDEFAULT, width=OSWIDTH)
+					self.arrayButton[y][x].pack(side=LEFT)
+					#self.GetCell(x, y).Render(self.arrayButton[y][x])
+				frBtn.pack()
+			#print("en")
+			#self.initArray.cancel()				
+			#self.initArray = setInterval(initArrayButton, 1)
+			#self.initArray.start()
 
 		def CalcOrdinal(self, x, y):
 			return (y+1)*self.size-x
@@ -215,9 +230,10 @@ class Solver(object):
 
 		def SetAttr(self, x, y, name, value):
 			if value == None:
-				setattr(self.GetCell(x,y), name, not self.GetCell(x, y))
+				setattr(self.GetCell(x,y), name, not getattr(self.GetCell(x, y), name))
 			else:
 				setattr(self.GetCell(x,y), name, value)
+			#self.GetCell(x,y).SetAttr(name,value)
 		
 		def DrawLevel(self, level):
 			self.GameBoard.config(text="[Game Board: ] - "+" ["+level+"]")
@@ -233,11 +249,12 @@ class Solver(object):
 								else COLORGOAL if(self.cells[row][col].bGoal) \
 								else COLORDEFAULT
 							self.arrayButton[row][col].config(text=st, bg=color)
+							#self.arrayButton[row][col].pack(side=LEFT)
 					return True
 			return False
 		
 		#dontcare
-		def Save(self,):
+		def Save(self):
 			rv = [[None]*self.size]*self.size
 			for y in range(self.size):
 				for x in range(self.size):
@@ -263,7 +280,9 @@ class Solver(object):
 		def RenderCell2D(self,x,y):
 			#btn
 			#GetCell(x,y).Render(btn)
+			
 			btn = self.arrayButton[y][x]
+			#print(x, y, btn["text"])
 			self.GetCell(x,y).Render(btn)
 			
 		#get later
@@ -322,7 +341,7 @@ class Solver(object):
 			prevLUT = {}
 			queue.append(endPos)
 			prevLUT[endPos.MakeKey()] = None
-			a =[[0 for x in range(17)] for y in range(17)] 
+			a =[[0 for x in range(self.size)] for y in range(self.size)] 
 			while len(queue):
 				p =  queue.pop(0)
 				a = self.FilterPositions(p.NextPositions())
@@ -360,7 +379,7 @@ class Solver(object):
 	def get_Board(self):
 		return self.Board(self)
 
-class GameBoard(Frame):
+class GameBoardApp(Frame):
 
 	def __init__(self, master=None, size=0, data=None):
 		super().__init__(master)
@@ -375,26 +394,32 @@ class GameBoard(Frame):
 		self.ControlFrame = LabelFrame(master, text="[Control Panel: ]")
 		self.master = master
 
-		self.listNote = {
-			'O': 'Create a Soft Plate',
-			'X': 'Create a Hard Plate',
-			'S': 'Create a Splitter',
-			'N': 'Create a Normal Cell',
-			'W': 'Create a Weak Cell',
-			'#': 'Create Destination Cell',
-			'-': 'Create an Empty Cell',
+		self.listDescription = {
+			'O': 'Soft Plate',
+			'X': 'Hard Plate',
+			'S': 'Splitter',
+			'N': 'Normal Cell',
+			'W': 'Weak Cell',
+			'#': 'Destination Cell',
+			'.': 'Empty Cell',
+		}
+		self.listPathImage = {
+			'O': 'images/SoftPlate.png',
+			'X': 'images/HardPlate.png',
+			'S': 'images/Splitter.png',
+			'N': 'images/NormalCell.png',
+			'W': 'images/WeakCell.png',
+			'#': 'images/DestinationCell.png',
+			'.': 'images/Empty.png',
 		}
 
 		self.listMark = {
-			'1': 'Mark/clear occupied flag',
-			'2': 'Mark/clear forbidden flag\n(Plates and splitters only)',
-			'3': 'Mark/clear goal flag'
+			'1': 'Mark/Clear Occupied Flag',
+			'2': 'Mark/Clear Forbidden Flag\n(Plates and Splitters only)',
+			'3': 'Mark/Clear Goal Flag'
 		}
 
 		"""Variable for current index"""
-		
-		self.Solver = Solver()
-		self.board = self.Solver.Board(self.GameFrame, self.Solver)
 
 		#Cursor state
 		self.actionName = None
@@ -430,12 +455,13 @@ class GameBoard(Frame):
 		self.ControlFrame.pack(side = BOTTOM, fill="both")
 		self.pack(fill=BOTH, expand=1)
 		
+		self.GetGameBoard()
 		self.GetMenu()
 		self.GetNote()
 		self.GetControl()
 
-		self.RenderBoard()
-		self.RenderControls()
+		#self.RenderBoard()
+		#self.RenderControls()
 		
 
 	def ShowIntro(self):
@@ -453,21 +479,33 @@ class GameBoard(Frame):
 		self.RenderControls()
 		return False
 
+	def GetGameBoard(self):
+		self.Solver = Solver(self)
+		self.board = self.Solver.Board(self.GameFrame, self.Solver)
+
 	#ok
 	def GetNote(self):
-		for key in self.listNote.keys():
+		for key in self.listDescription.keys():
 			frameLb = Frame(self.NoteFrame)
-			btnNote = Button(frameLb, text="[ %s ]"%key, width=5).pack(side=LEFT)
-			textNote= Label(frameLb, text=self.listNote[key]).pack(side=RIGHT)
+			setAction=partial(self.SetAction, 'ttype', key)
+			Button(frameLb, text="[ %s ] - %s"%(key, self.listDescription[key]),command=setAction, width=18).pack(side=LEFT)
+			load = Image.open(self.listPathImage[key])
+			render = ImageTk.PhotoImage(load)
+			img = Label(frameLb, image=render, text="X")
+			img.image = render
+			img.pack(side=LEFT)
 			frameLb.pack(anchor=W)
-		Label(self.NoteFrame, text="------------").pack()
+		
+		#Label(self.NoteFrame, text="------------").pack()
+		
 		for key in range(1,4):
 			color = COLOROCCUPIED if(key==1) else COLORAVOID if (key == 2) else COLORGOAL
+			name = 'bOccupied' if(key==1) else 'bAvoid' if (key == 2) else 'bGoal'
 			frameLb = Frame(self.NoteFrame)
-			btnNote = Button(frameLb, text="[@]", width=5, bg=color).pack(side=LEFT)
-			textNote= Label(frameLb, text=self.listMark[str(key)]).pack(side=RIGHT)
+			setAction=partial(self.SetAction, name)
+			Button(frameLb, text="[@]",command=setAction, width=5, bg=color).pack(side=LEFT)
+			Label(frameLb, text=self.listMark[str(key)]).pack(side=RIGHT)
 			frameLb.pack(anchor=W)
-		Label(self.NoteFrame, text="------------").pack()
 
 	#ok
 	def GetControl(self):
@@ -485,7 +523,7 @@ class GameBoard(Frame):
 		frStop.pack(anchor=CENTER)
 
 		frCont = Frame(self.ControlFrame)
-		btnCont = Button(frCont, text="Reset Board Game", command=self.ResetAnimation, width=20).pack()
+		btnCont = Button(frCont, text="Reset Game", command=self.ResetAnimation, width=20).pack()
 		frCont.pack(anchor=CENTER)
 		#maximum = 100
 		#interval = 10
@@ -671,6 +709,8 @@ class GameBoard(Frame):
 
 	#not yet
 	def GetLevel(self, level):
+		self.StopAnimation()
+		self.path = None
 		self.board.DrawLevel(level)
 
 	#dont care
@@ -679,18 +719,19 @@ class GameBoard(Frame):
 		pass
 
 	#ok
-	def SetAction(self, name, value):
+	def SetAction(self, name, value=None):
+		#print(name, value)
 		self.actionName = name
 		self.actionValue = value
 
 	#ok
 	def TakeAcion(self, x, y):
 		if((self.actionName != None) and (self.hInterval == None)):
+			#print("board :",x, y)
+			#print(self.actionName, self.actionValue)
 			self.board.SetAttr(x, y, self.actionName, self.actionValue)
 			self.RenderCell(x, y)
-
 			self.path = None
-
 			self.RenderControls()
 
 	#ok
@@ -734,6 +775,8 @@ class GameBoard(Frame):
 			#self.prog_bar.start()
 			self.RenderBoard()
 			self.RenderControls()
+		else:
+			messagebox.showinfo("Dear Sir!", "You have not solved this Level yet!!")
 
 	def ResetAnimation(self):
 		if(self.path):
@@ -784,6 +827,7 @@ class GameBoard(Frame):
 
 	def RenderCell(self,x,y):
 		if(self.mode == 'edit'):
+			#print(x, y)
 			self.board.RenderCell2D(x,y)
 		elif(self.mode == 'game'):
 			self.board.RenderCellIso(x,y)
@@ -813,6 +857,7 @@ class setInterval():
 
 if __name__ == '__main__':
 	root = Tk()
-	root.iconbitmap('@person.xbm')
-	app = GameBoard(master=root, size=20)
+	root.iconbitmap('@images/person.xbm')
+	#root.resizable(False,False)
+	app = GameBoardApp(master=root, size=20)
 	app.mainloop()
