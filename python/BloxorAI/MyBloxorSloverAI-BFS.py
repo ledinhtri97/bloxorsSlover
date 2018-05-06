@@ -362,6 +362,9 @@ class Solver(object):
 			k = p.MakeKey()
 			rv.append(p)
 			while True:
+				if k not in prevLUT:
+					#messagebox("Note", "No Path Found!!")
+					break
 				np = prevLUT[k]
 				if(np == None):
 					break
