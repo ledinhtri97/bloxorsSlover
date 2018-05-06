@@ -10,10 +10,12 @@ import threading
 import sys
 
 OSWIDTH = 2 if sys.platform == 'linux' else 5
+SIZE = 20 if sys.platform == 'linux' else 21
 COLOROCCUPIED = 'royal blue'
 COLORGOAL 	  = 'orange'
 COLORAVOID	  = 'tomato'
 COLORDEFAULT  = 'gray83'
+COLORGREY	  = 'grey'
 
 class Solver(object):
 	"""docstring for Solver"""
@@ -155,7 +157,7 @@ class Solver(object):
 								else COLORAVOID if (self.bAvoid) \
 								else COLORGOAL if(self.bGoal) \
 								else COLORDEFAULT
-				btn.config(text=self.ttype, command=None, bg=color, width=2)
+				btn.config(text=self.ttype, command=None, bg=color)
 			else:
 				self.getImages()
 		
@@ -336,7 +338,7 @@ class Solver(object):
 			
 			return rv
 		
-		def PathFind(self,startPos, endPos):
+		def PathFindBFS(self,startPos, endPos):
 			queue = []
 			prevLUT = {}
 			queue.append(endPos)
@@ -542,11 +544,11 @@ class GameBoardApp(Frame):
 
 		#create the file object
 		view = Menu(menu, tearoff=0)
-		#view.add_command(label="Edit View", command=self.prog_bar.pb_start, activebackground="grey")
-		#view.add_command(label="Game View", command=self.prog_bar.pb_stop, activebackground="grey")
+		#view.add_command(label="Edit View", command=self.prog_bar.pb_start, activebackground=COLORGREY)
+		#view.add_command(label="Game View", command=self.prog_bar.pb_stop, activebackground=COLORGREY)
 		
-		view.add_command(label="Edit View", command=self.EditView, activebackground="grey")
-		view.add_command(label="Game View", command=self.GameView, activebackground="grey")
+		view.add_command(label="Edit View", command=self.EditView, activebackground=COLORGREY)
+		view.add_command(label="Game View", command=self.GameView, activebackground=COLORGREY)
 		
 		loadlevel1 = Menu(menu, tearoff=0)
 		for i in range(1,10):
@@ -554,24 +556,24 @@ class GameBoardApp(Frame):
 				for c in range(ord('A'),ord('C')+1):
 					st = "Level " + str(i)+chr(c)
 					level=partial(self.GetLevel, st)
-					loadlevel1.add_command(label=st, command=level, activebackground="grey")
+					loadlevel1.add_command(label=st, command=level, activebackground=COLORGREY)
 				loadlevel1.add_separator()
 			elif (i==5):
 				for c in range(ord('A'),ord('E')+1):
 					st = "Level " + str(i)+chr(c)
 					level=partial(self.GetLevel, st)
-					loadlevel1.add_command(label=st, command=level, activebackground="grey")
+					loadlevel1.add_command(label=st, command=level, activebackground=COLORGREY)
 				loadlevel1.add_separator()
 			elif (i==7 or i==8 or i==9):
 				for c in range(ord('A'),ord('B')+1):
 					st = "Level " + str(i)+chr(c)
 					level=partial(self.GetLevel, st)
-					loadlevel1.add_command(label=st, command=level, activebackground="grey")
+					loadlevel1.add_command(label=st, command=level, activebackground=COLORGREY)
 				loadlevel1.add_separator()
 			else:
 				st = "Level " + str(i)
 				level=partial(self.GetLevel, st)
-				loadlevel1.add_command(label=st, command=level, activebackground="grey")
+				loadlevel1.add_command(label=st, command=level, activebackground=COLORGREY)
 				loadlevel1.add_separator()
 
 		loadlevel2 = Menu(menu, tearoff=0)
@@ -580,12 +582,12 @@ class GameBoardApp(Frame):
 				for c in range(ord('A'),ord('C')+1):
 					st = "Level " + str(i)+chr(c)
 					level=partial(self.GetLevel, st)
-					loadlevel2.add_command(label=st, command=level, activebackground="grey")
+					loadlevel2.add_command(label=st, command=level, activebackground=COLORGREY)
 				loadlevel2.add_separator()
 			else:
 				st = "Level " + str(i)
 				level=partial(self.GetLevel, st)
-				loadlevel2.add_command(label=st, command=level, activebackground="grey")
+				loadlevel2.add_command(label=st, command=level, activebackground=COLORGREY)
 				loadlevel2.add_separator()
 
 		loadlevel3 = Menu(menu, tearoff=0)
@@ -594,19 +596,19 @@ class GameBoardApp(Frame):
 				for c in range(ord('A'),ord('E')+1):
 					st = "Level " + str(i)+chr(c)
 					level=partial(self.GetLevel, st)
-					loadlevel3.add_command(label=st, command=level, activebackground="grey")
+					loadlevel3.add_command(label=st, command=level, activebackground=COLORGREY)
 				loadlevel3.add_separator()
 			elif(i==16):
 				for c in range(ord('A'),ord('H')+1):
 					st = "Level " + str(i)+chr(c)
 					level=partial(self.GetLevel, st)
-					loadlevel3.add_command(label=st, command=level, activebackground="grey")
+					loadlevel3.add_command(label=st, command=level, activebackground=COLORGREY)
 				loadlevel3.add_separator()
 			else:
 				for c in range(ord('A'),ord('D')+1):
 					st = "Level " + str(i)+chr(c)
 					level=partial(self.GetLevel, st)
-					loadlevel3.add_command(label=st, command=level, activebackground="grey")
+					loadlevel3.add_command(label=st, command=level, activebackground=COLORGREY)
 				loadlevel3.add_separator()
 
 		loadlevel4 = Menu(menu, tearoff=0)
@@ -615,25 +617,25 @@ class GameBoardApp(Frame):
 				for c in range(ord('A'),ord('B')+1):
 					st = "Level " + str(i)+chr(c)
 					level=partial(self.GetLevel, st)
-					loadlevel4.add_command(label=st, command=level, activebackground="grey")
+					loadlevel4.add_command(label=st, command=level, activebackground=COLORGREY)
 				loadlevel4.add_separator()
 			elif (i==22):
 				for c in range(ord('A'),ord('C')+1):
 					st = "Level " + str(i)+chr(c)
 					level=partial(self.GetLevel, st)
-					loadlevel4.add_command(label=st, command=level, activebackground="grey")
+					loadlevel4.add_command(label=st, command=level, activebackground=COLORGREY)
 				loadlevel4.add_separator()
 			elif (i==23):
 				for c in range(ord('A'),ord('D')+1):
 					st = "Level " + str(i)+chr(c)
 					level=partial(self.GetLevel, st)
-					loadlevel4.add_command(label=st, command=level, activebackground="grey")
+					loadlevel4.add_command(label=st, command=level, activebackground=COLORGREY)
 				loadlevel4.add_separator()
 			else:
 				for c in range(ord('A'),ord('F')+1):
 					st = "Level " + str(i)+chr(c)
 					level=partial(self.GetLevel, st)
-					loadlevel4.add_command(label=st, command=level, activebackground="grey")
+					loadlevel4.add_command(label=st, command=level, activebackground=COLORGREY)
 				loadlevel4.add_separator()
 		
 		loadlevel5 = Menu(menu, tearoff=0)
@@ -642,13 +644,13 @@ class GameBoardApp(Frame):
 				for c in range(ord('A'),ord('D')+1):
 					st = "Level " + str(i)+chr(c)
 					level=partial(self.GetLevel, st)
-					loadlevel5.add_command(label=st, command=level, activebackground="grey")
+					loadlevel5.add_command(label=st, command=level, activebackground=COLORGREY)
 				loadlevel5.add_separator()
 			else:
 				for c in range(ord('A'),ord('B')+1):
 					st = "Level " + str(i)+chr(c)
 					level=partial(self.GetLevel, st)
-					loadlevel5.add_command(label=st, command=level, activebackground="grey")
+					loadlevel5.add_command(label=st, command=level, activebackground=COLORGREY)
 				loadlevel5.add_separator()
 
 
@@ -658,30 +660,30 @@ class GameBoardApp(Frame):
 				for c in range(ord('A'),ord('G')+1):
 					st = "Level " + str(i)+chr(c)
 					level=partial(self.GetLevel, st)
-					loadlevel6.add_command(label=st, command=level, activebackground="grey")
+					loadlevel6.add_command(label=st, command=level, activebackground=COLORGREY)
 				loadlevel6.add_separator()
 			elif (i==30):
 				for c in range(ord('A'),ord('E')+1):
 					st = "Level " + str(i)+chr(c)
 					level=partial(self.GetLevel, st)
-					loadlevel6.add_command(label=st, command=level, activebackground="grey")
+					loadlevel6.add_command(label=st, command=level, activebackground=COLORGREY)
 				loadlevel6.add_separator()
 			elif (i==31 or i==32):
 				for c in range(ord('A'),ord('D')+1):
 					st = "Level " + str(i)+chr(c)
 					level=partial(self.GetLevel, st)
-					loadlevel6.add_command(label=st, command=level, activebackground="grey")
+					loadlevel6.add_command(label=st, command=level, activebackground=COLORGREY)
 				loadlevel6.add_separator()
 			else:
 				for c in range(ord('A'),ord('B')+1):
 					st = "Level " + str(i)+chr(c)
 					level=partial(self.GetLevel, st)
-					loadlevel6.add_command(label=st, command=level, activebackground="grey")
+					loadlevel6.add_command(label=st, command=level, activebackground=COLORGREY)
 				loadlevel6.add_separator()
 
 		option = Menu(menu, tearoff=0)
-		option.add_command(label="Reset Board", command=self.ResetBoard, activebackground="grey")
-		option.add_command(label="Quit", command=self.Exit, activebackground="grey")
+		option.add_command(label="Reset Board", command=self.ResetBoard, activebackground=COLORGREY)
+		option.add_command(label="Quit", command=self.Exit, activebackground=COLORGREY)
 		
 		#added "file" and "edit" to out menu
 		menu.add_cascade(label="View", menu=view)
@@ -745,7 +747,7 @@ class GameBoardApp(Frame):
 		if(len(self.board.FilterPositions([sPos, ePos])) != 2):
 			messagebox.showinfo("Hey You!", "Start and/or goal positions are illegal!")
 
-		path = self.board.PathFind(sPos, ePos)
+		path = self.board.PathFindBFS(sPos, ePos)
 
 		if(not path):
 			messagebox.showinfo("So Sorry!", "Destination unreachable!,\n Could not find any path")
@@ -758,12 +760,7 @@ class GameBoardApp(Frame):
 	#def Clear
 	def ResetBoard(self):
 		print("ResetBoard")
-		if(not self.hInterval):
-			self.board = Solver.Board(self.GameFrame, self.Solver)
-			self.path = None
-			self.RenderBoard()
-			self.RenderControls()
-
+		self.GetLevel('Empty')
 	#ok
 	def StartAnimation(self):
 		if(not self.hInterval and self.path):
@@ -859,5 +856,5 @@ if __name__ == '__main__':
 	root = Tk()
 	root.iconbitmap('@images/person.xbm')
 	#root.resizable(False,False)
-	app = GameBoardApp(master=root, size=20)
+	app = GameBoardApp(master=root, size=SIZE)
 	app.mainloop()
